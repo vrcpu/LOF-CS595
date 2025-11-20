@@ -1,0 +1,17 @@
+# Core dependencies
+requests==2.32.3
+python-dotenv==1.0.1
+pandas==2.2.3
+numpy==2.1.2
+
+# For JSON and data formatting
+simplejson==3.19.2
+
+# For CSV and date handling
+python-dateutil==2.9.0.post0
+
+# Optional: if you’re using timezones or parsing ISO dates robustly
+pytz==2024.2
+
+# Logging and debugging utilities
+tqdm==4.66.5
