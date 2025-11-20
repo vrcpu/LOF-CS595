@@ -1,0 +1,1009 @@
+{
+	"info": {
+		"_postman_id": "0765122e-5c0f-4296-ac64-f4ffbf1eb8f4",
+		"name": "FHIR LAB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45666122",
+		"_collection_link": "https://prasannaveladi.postman.co/workspace/Prasanna-Veladi's-Workspace~45965234-74e8-4c53-8a01-b403befe9fdd/collection/45666122-0765122e-5c0f-4296-ac64-f4ffbf1eb8f4?action=share&source=collection_link&creator=45666122"
+	},
+	"item": [
+		{
+			"name": "Allergy",
+			"item": [
+				{
+					"name": "Get Allergy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Admin123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FHIR_SERVER}}/AllergyIntolerance?patient=076154fc-381d-4805-a5b9-13b90f667717",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"AllergyIntolerance"
+							],
+							"query": [
+								{
+									"key": "patient",
+									"value": "076154fc-381d-4805-a5b9-13b90f667717"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Allergy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Admin123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json-patch+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  {\r\n    \"op\": \"replace\",\r\n    \"path\": \"/reaction/0/severity\",\r\n    \"value\": \"severe\"\r\n  }\r\n]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/AllergyIntolerance/eafc67d0-0cf1-4fe3-a316-ed2a9c5dfa5c",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"AllergyIntolerance",
+								"eafc67d0-0cf1-4fe3-a316-ed2a9c5dfa5c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Allergy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Admin123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/AllergyIntolerance/eafc67d0-0cf1-4fe3-a316-ed2a9c5dfa5c",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"AllergyIntolerance",
+								"eafc67d0-0cf1-4fe3-a316-ed2a9c5dfa5c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Allergy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Admin123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"AllergyIntolerance\",\r\n  \"clinicalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical\",\r\n        \"code\": \"active\",\r\n        \"display\": \"Active\"\r\n      }\r\n    ],\r\n    \"text\": \"Active\"\r\n  },\r\n  \"verificationStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-verification\",\r\n        \"code\": \"confirmed\",\r\n        \"display\": \"Confirmed\"\r\n      }\r\n    ],\r\n    \"text\": \"Confirmed\"\r\n  },\r\n  \"type\": \"allergy\",\r\n  \"category\": [\r\n    \"medication\"\r\n  ],\r\n  \"criticality\": \"unable-to-assess\",\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"code\": \"71617AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n        \"display\": \"Aspirin\"\r\n      },\r\n      {\r\n        \"system\": \"https://cielterminology.org\",\r\n        \"code\": \"71617\"\r\n      },\r\n      {\r\n        \"system\": \"http://snomed.info/sct/\",\r\n        \"code\": \"774656009\"\r\n      }\r\n    ],\r\n    \"text\": \"Aspirin\"\r\n  },\r\n  \"patient\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\"\r\n  },\r\n  \"recordedDate\": \"2025-10-09T00:14:22+00:00\",\r\n  \"recorder\": {\r\n    \"reference\": \"Practitioner/82f18b44-6814-11e8-923f-e9a88dcb533f\"\r\n  },\r\n  \"reaction\": [\r\n    {\r\n      \"substance\": {\r\n        \"coding\": [\r\n          {\r\n            \"code\": \"71617AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n            \"display\": \"Aspirin\"\r\n          },\r\n          {\r\n            \"system\": \"https://cielterminology.org\",\r\n            \"code\": \"71617\"\r\n          },\r\n          {\r\n            \"system\": \"http://snomed.info/sct/\",\r\n            \"code\": \"774656009\"\r\n          }\r\n        ],\r\n        \"text\": \"Aspirin\"\r\n      },\r\n      \"manifestation\": [\r\n        {\r\n          \"coding\": [\r\n            {\r\n              \"code\": \"121629AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n              \"display\": \"Anaemia\"\r\n            },\r\n            {\r\n              \"system\": \"https://cielterminology.org\",\r\n              \"code\": \"121629\"\r\n            },\r\n            {\r\n              \"system\": \"http://snomed.info/sct/\",\r\n              \"code\": \"271737000\"\r\n            }\r\n          ],\r\n          \"text\": \"Anaemia\"\r\n        }\r\n      ],\r\n      \"severity\": \"moderate\"\r\n    }\r\n  ],\r\n  \"note\": [\r\n    {\r\n      \"text\": \"\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/AllergyIntolerance",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"AllergyIntolerance"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Demographics/Metadata",
+			"item": [
+				{
+					"name": "Get patient UUID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Patient?identifier=10001YY",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Patient"
+							],
+							"query": [
+								{
+									"key": "identifier",
+									"value": "10001YY"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Metadata",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"MedicationStatement\",\r\n  \"status\": \"active\",\r\n  \"medicationCodeableConcept\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"https://ciel.terminology.org\",\r\n        \"code\": \"167\", \r\n        \"display\": \"Paracetamol 500mg\"\r\n      }\r\n    ],\r\n    \"text\": \"Paracetamol 500mg\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/44844a52-d001-4f05-9420-cb579027a1ca\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-04T12:00:00+00:00\",\r\n  \"dosage\": [\r\n    {\r\n      \"text\": \"Take 1 tablet twice daily\",\r\n      \"timing\": {\r\n        \"repeat\": {\r\n          \"frequency\": 2,\r\n          \"period\": 1,\r\n          \"periodUnit\": \"d\"\r\n        }\r\n      },\r\n      \"route\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://snomed.info/sct\",\r\n            \"code\": \"26643006\",\r\n            \"display\": \"Oral route\"\r\n          }\r\n        ]\r\n      },\r\n      \"doseAndRate\": [\r\n        {\r\n          \"doseQuantity\": {\r\n            \"value\": 500,\r\n            \"unit\": \"mg\",\r\n            \"system\": \"http://unitsofmeasure.org\",\r\n            \"code\": \"mg\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/metadata",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"metadata"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Encounter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Encounter\",\r\n  \"status\": \"finished\",\r\n  \"class\": {\r\n    \"system\": \"http://terminology.hl7.org/CodeSystem/v3-ActCode\",\r\n    \"code\": \"AMB\",\r\n    \"display\": \"ambulatory\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/100023N\"\r\n  },\r\n  \"period\": {\r\n    \"start\": \"2025-10-07T09:00:00Z\",\r\n    \"end\": \"2025-10-07T10:00:00Z\"\r\n  },\r\n  \"participant\": [\r\n    {\r\n      \"individual\": {\r\n        \"reference\": \"Practitioner/12345\"\r\n      }\r\n    }\r\n  ],\r\n  \"location\": [\r\n    {\r\n      \"location\": {\r\n        \"reference\": \"Location/1\"\r\n      }\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Encounter",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Encounter"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Condition",
+			"item": [
+				{
+					"name": "Get condition",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Condition?patient=076154fc-381d-4805-a5b9-13b90f667717",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Condition"
+							],
+							"query": [
+								{
+									"key": "patient",
+									"value": "076154fc-381d-4805-a5b9-13b90f667717"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Condition",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Condition\",\r\n  \"clinicalStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/condition-clinical\",\r\n        \"code\": \"active\",\r\n        \"display\": \"Active\"\r\n      }\r\n    ],\r\n    \"text\": \"Active\"\r\n  },\r\n  \"verificationStatus\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://terminology.hl7.org/CodeSystem/condition-ver-status\",\r\n        \"code\": \"confirmed\",\r\n        \"display\": \"Confirmed\"\r\n      }\r\n    ],\r\n    \"text\": \"Confirmed\"\r\n  },\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/condition-category\",\r\n          \"code\": \"problem-list-item\",\r\n          \"display\": \"Problem List Item\"\r\n        }\r\n      ],\r\n      \"text\": \"Problem List Item\"\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://hl7.org/fhir/sid/icd-10-cm\",\r\n        \"code\": \"E14.9\",\r\n        \"display\": \"Diabetes mellitus\"\r\n      },\r\n      {\r\n        \"system\": \"http://snomed.info/sct\",\r\n        \"code\": \"73211009\",\r\n        \"display\": \"Diabetes mellitus\"\r\n      }\r\n    ],\r\n    \"text\": \"Diabetes mellitus\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v (OpenMRS ID: 10001YY)\"\r\n  },\r\n  \"recordedDate\": \"2025-10-02\",\r\n  \"onsetDateTime\": \"2020-01-15T12:00:00-06:00\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Condition",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Condition"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Condition",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Condition/87f5a1f2-1f73-4d67-9969-d096940606d3",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Condition",
+								"87f5a1f2-1f73-4d67-9969-d096940606d3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update condition",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json-patch+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  {\r\n    \"op\": \"replace\",\r\n    \"path\": \"/clinicalStatus/coding/0/code\",\r\n    \"value\": \"inactive\"\r\n  }\r\n]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Condition/87f5a1f2-1f73-4d67-9969-d096940606d3",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Condition",
+								"87f5a1f2-1f73-4d67-9969-d096940606d3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Observation",
+			"item": [
+				{
+					"name": "Get Observation",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation?patient=076154fc-381d-4805-a5b9-13b90f667717",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation"
+							],
+							"query": [
+								{
+									"key": "patient",
+									"value": "076154fc-381d-4805-a5b9-13b90f667717"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Obs",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "Admin123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/openmrs/ws/fhir2/R4/Observation/47087852-028c-4987-a6fe-ad9cd4ee93bd",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"openmrs",
+								"ws",
+								"fhir2",
+								"R4",
+								"Observation",
+								"47087852-028c-4987-a6fe-ad9cd4ee93bd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Obs-height",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"status\": \"final\",\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\r\n          \"code\": \"exam\",\r\n          \"display\": \"Exam\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"code\": \"5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n        \"display\": \"Height (cm)\"\r\n      },\r\n      {\r\n        \"system\": \"https://cielterminology.org\",\r\n        \"code\": \"5090\"\r\n      }\r\n    ],\r\n    \"text\": \"Height (cm)\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-07T22:46:33+00:00\",\r\n  \"issued\": \"2025-10-07T22:46:33+00:00\",\r\n  \"valueQuantity\": {\r\n    \"value\": 90.0,\r\n    \"unit\": \"cm\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"cm\"\r\n  },\r\n  \"referenceRange\": [\r\n    {\r\n      \"low\": { \"value\": 10.0 },\r\n      \"high\": { \"value\": 272.0 },\r\n      \"type\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://fhir.openmrs.org/ext/obs/reference-range\",\r\n            \"code\": \"absolute\"\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Obs-Weight",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"status\": \"final\",\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\r\n          \"code\": \"exam\",\r\n          \"display\": \"Exam\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"code\": \"5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n        \"display\": \"Weight (kg)\"\r\n      },\r\n      {\r\n        \"system\": \"https://cielterminology.org\",\r\n        \"code\": \"5089\"\r\n      }\r\n    ],\r\n    \"text\": \"Weight (kg)\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-07T22:46:33+00:00\",\r\n  \"issued\": \"2025-10-07T22:46:33+00:00\",\r\n  \"valueQuantity\": {\r\n    \"value\": 85.5,\r\n    \"unit\": \"kg\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"kg\"\r\n  },\r\n  \"referenceRange\": [\r\n    {\r\n      \"low\": { \"value\": 0.0 },\r\n      \"high\": { \"value\": 250.0 },\r\n      \"type\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://fhir.openmrs.org/ext/obs/reference-range\",\r\n            \"code\": \"absolute\"\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Obs-Temp",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"status\": \"final\",\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\r\n          \"code\": \"vital-signs\",\r\n          \"display\": \"Vital Signs\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"code\": \"5088AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n        \"display\": \"Temperature (°C)\"\r\n      },\r\n      {\r\n        \"system\": \"https://cielterminology.org\",\r\n        \"code\": \"5088\"\r\n      }\r\n    ],\r\n    \"text\": \"Temperature (°C)\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-07T22:46:33+00:00\",\r\n  \"issued\": \"2025-10-07T22:46:33+00:00\",\r\n  \"valueQuantity\": {\r\n    \"value\": 36.8,\r\n    \"unit\": \"°C\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"Cel\"\r\n  },\r\n  \"referenceRange\": [\r\n    {\r\n      \"low\": { \"value\": 35.0 },\r\n      \"high\": { \"value\": 42.0 },\r\n      \"type\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://fhir.openmrs.org/ext/obs/reference-range\",\r\n            \"code\": \"absolute\"\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Obs-R.Rate",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"status\": \"final\",\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\r\n          \"code\": \"vital-signs\",\r\n          \"display\": \"Vital Signs\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"code\": \"5242AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n        \"display\": \"Respiratory rate\"\r\n      },\r\n      {\r\n        \"system\": \"https://cielterminology.org\",\r\n        \"code\": \"5242\"\r\n      }\r\n    ],\r\n    \"text\": \"Respiratory rate\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-07T22:46:33+00:00\",\r\n  \"issued\": \"2025-10-07T22:46:33+00:00\",\r\n  \"valueQuantity\": {\r\n    \"value\": 18,\r\n    \"unit\": \"breaths/min\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"/min\"\r\n  },\r\n  \"referenceRange\": [\r\n    {\r\n      \"low\": { \"value\": 12 },\r\n      \"high\": { \"value\": 20 },\r\n      \"type\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://fhir.openmrs.org/ext/obs/reference-range\",\r\n            \"code\": \"absolute\"\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Obs-SPo2",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"status\": \"final\",\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\r\n          \"code\": \"vital-signs\",\r\n          \"display\": \"Vital Signs\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"code\": \"5092AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n        \"display\": \"Oxygen saturation\"\r\n      },\r\n      {\r\n        \"system\": \"https://cielterminology.org\",\r\n        \"code\": \"5092\"\r\n      }\r\n    ],\r\n    \"text\": \"Oxygen saturation (SpO₂)\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-07T22:46:33+00:00\",\r\n  \"issued\": \"2025-10-07T22:46:33+00:00\",\r\n  \"valueQuantity\": {\r\n    \"value\": 98.0,\r\n    \"unit\": \"%\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"%\"\r\n  },\r\n  \"referenceRange\": [\r\n    {\r\n      \"low\": { \"value\": 90.0 },\r\n      \"high\": { \"value\": 100.0 },\r\n      \"type\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://fhir.openmrs.org/ext/obs/reference-range\",\r\n            \"code\": \"absolute\"\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Obs-Height",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"id\": \"272bb883-ac71-44c0-9635-cee620225724\",\r\n  \"status\": \"final\",\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\r\n          \"code\": \"exam\",\r\n          \"display\": \"Exam\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"code\": \"5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\r\n        \"display\": \"Height (cm)\"\r\n      },\r\n      {\r\n        \"system\": \"https://cielterminology.org\",\r\n        \"code\": \"5090\"\r\n      }\r\n    ],\r\n    \"text\": \"Height (cm)\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-07T22:46:33+00:00\",\r\n  \"issued\": \"2025-10-07T22:46:33+00:00\",\r\n  \"valueQuantity\": {\r\n    \"value\": 181.0,\r\n    \"unit\": \"cm\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"cm\"\r\n  },\r\n  \"referenceRange\": [\r\n    {\r\n      \"low\": { \"value\": 10.0 },\r\n      \"high\": { \"value\": 272.0 },\r\n      \"type\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://fhir.openmrs.org/ext/obs/reference-range\",\r\n            \"code\": \"absolute\"\r\n          }\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation/272bb883-ac71-44c0-9635-cee620225724",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation",
+								"272bb883-ac71-44c0-9635-cee620225724"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Obs-Weight",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"id\": \"7a519e7e-ae70-4bad-81ce-5b95666fb55d\",\r\n  \"status\": \"final\",\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\r\n          \"code\": \"exam\",\r\n          \"display\": \"Exam\"\r\n        }\r\n      ],\r\n      \"text\": \"Exam\"\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"https://cielterminology.org\",\r\n        \"code\": \"5089\",\r\n        \"display\": \"Weight (kg)\"\r\n      },\r\n      {\r\n        \"system\": \"http://loinc.org\",\r\n        \"code\": \"29463-7\",\r\n        \"display\": \"Body Weight\"\r\n      }\r\n    ],\r\n    \"text\": \"Weight (kg)\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-07T23:40:00+00:00\",\r\n  \"issued\": \"2025-10-08T01:39:40+00:00\",\r\n  \"valueQuantity\": {\r\n    \"value\": 100,\r\n    \"unit\": \"kg\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"kg\"\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation/7a519e7e-ae70-4bad-81ce-5b95666fb55d",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation",
+								"7a519e7e-ae70-4bad-81ce-5b95666fb55d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Observation",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{FHIR_SERVER}}/Observation/71b6afba-50ee-44cf-adfb-98c28dd87e86",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"Observation",
+								"71b6afba-50ee-44cf-adfb-98c28dd87e86"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Medication",
+			"item": [
+				{
+					"name": "Create MedicationDispense",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"MedicationDispense\",\r\n  \"status\": \"completed\",\r\n  \"subject\": {\r\n    \"reference\": \"Patient/076154fc-381d-4805-a5b9-13b90f667717\",\r\n    \"display\": \"j v (OpenMRS ID: 10001YY)\"\r\n  },\r\n  \"medicationReference\": {\r\n    \"reference\": \"Medication/fbf74fd6-b37c-4325-86cb-dcaf4aabed81\",\r\n    \"display\": \"Paracetamol 500mg\"\r\n  },\r\n  \"quantity\": {\r\n    \"value\": 20,\r\n    \"unit\": \"Tablet\"\r\n  },\r\n  \"whenHandedOver\": \"2025-10-07T00:00:00Z\",\r\n  \"dosageInstruction\": [\r\n    {\r\n      \"text\": \"Take one tablet twice daily after meals\",\r\n      \"timing\": {\r\n        \"repeat\": {\r\n          \"frequency\": 2,\r\n          \"period\": 1,\r\n          \"periodUnit\": \"d\"\r\n        }\r\n      },\r\n      \"route\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://snomed.info/sct\",\r\n            \"code\": \"26643006\",\r\n            \"display\": \"Oral\"\r\n          }\r\n        ]\r\n      },\r\n      \"doseAndRate\": [\r\n        {\r\n          \"doseQuantity\": {\r\n            \"value\": 1,\r\n            \"unit\": \"tablet\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"performer\": [\r\n    {\r\n      \"actor\": {\r\n        \"reference\": \"Practitioner/aaf265a6-c841-423b-b1af-fc652049bcfb\",\r\n        \"display\": \"Super User\"\r\n      }\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/MedicationDispense",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"MedicationDispense"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Medication",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"MedicationStatement\",\r\n  \"status\": \"active\",\r\n  \"medicationCodeableConcept\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"https://ciel.terminology.org\",\r\n        \"code\": \"167\", \r\n        \"display\": \"Paracetamol 500mg\"\r\n      }\r\n    ],\r\n    \"text\": \"Paracetamol 500mg\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/44844a52-d001-4f05-9420-cb579027a1ca\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-04T12:00:00+00:00\",\r\n  \"dosage\": [\r\n    {\r\n      \"text\": \"Take 1 tablet twice daily\",\r\n      \"timing\": {\r\n        \"repeat\": {\r\n          \"frequency\": 2,\r\n          \"period\": 1,\r\n          \"periodUnit\": \"d\"\r\n        }\r\n      },\r\n      \"route\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://snomed.info/sct\",\r\n            \"code\": \"26643006\",\r\n            \"display\": \"Oral route\"\r\n          }\r\n        ]\r\n      },\r\n      \"doseAndRate\": [\r\n        {\r\n          \"doseQuantity\": {\r\n            \"value\": 500,\r\n            \"unit\": \"mg\",\r\n            \"system\": \"http://unitsofmeasure.org\",\r\n            \"code\": \"mg\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/MedicationRequest?patient=076154fc-381d-4805-a5b9-13b90f667717",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"MedicationRequest"
+							],
+							"query": [
+								{
+									"key": "patient",
+									"value": "076154fc-381d-4805-a5b9-13b90f667717"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Medication",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json-patch+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  {\r\n    \"op\": \"replace\",\r\n    \"path\": \"/status\",\r\n    \"value\": \"stopped\"\r\n  }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/MedicationRequest/d7c6d3db-6283-492a-be3c-48ca93b64488",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"MedicationRequest",
+								"d7c6d3db-6283-492a-be3c-48ca93b64488"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get MedicationDispense",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true,
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/fhir+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"resourceType\": \"MedicationStatement\",\r\n  \"status\": \"active\",\r\n  \"medicationCodeableConcept\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"https://ciel.terminology.org\",\r\n        \"code\": \"167\", \r\n        \"display\": \"Paracetamol 500mg\"\r\n      }\r\n    ],\r\n    \"text\": \"Paracetamol 500mg\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/44844a52-d001-4f05-9420-cb579027a1ca\"\r\n  },\r\n  \"effectiveDateTime\": \"2025-10-04T12:00:00+00:00\",\r\n  \"dosage\": [\r\n    {\r\n      \"text\": \"Take 1 tablet twice daily\",\r\n      \"timing\": {\r\n        \"repeat\": {\r\n          \"frequency\": 2,\r\n          \"period\": 1,\r\n          \"periodUnit\": \"d\"\r\n        }\r\n      },\r\n      \"route\": {\r\n        \"coding\": [\r\n          {\r\n            \"system\": \"http://snomed.info/sct\",\r\n            \"code\": \"26643006\",\r\n            \"display\": \"Oral route\"\r\n          }\r\n        ]\r\n      },\r\n      \"doseAndRate\": [\r\n        {\r\n          \"doseQuantity\": {\r\n            \"value\": 500,\r\n            \"unit\": \"mg\",\r\n            \"system\": \"http://unitsofmeasure.org\",\r\n            \"code\": \"mg\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{FHIR_SERVER}}/MedicationDispense?patient=076154fc-381d-4805-a5b9-13b90f667717",
+							"host": [
+								"{{FHIR_SERVER}}"
+							],
+							"path": [
+								"MedicationDispense"
+							],
+							"query": [
+								{
+									"key": "patient",
+									"value": "076154fc-381d-4805-a5b9-13b90f667717"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "Admin123",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "Admin",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
