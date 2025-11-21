@@ -1,0 +1,47 @@
+version: "3.7"
+
+services:
+  backend:
+    image: openmrs/openmrs-reference-application-3-backend:${TAG:-qa}
+    environment:
+      OMRS_CONFIG_MODULE_WEB_ADMIN: "true"
+      OMRS_CONFIG_AUTO_UPDATE_DATABASE: "true"
+      OMRS_CONFIG_CREATE_TABLES: "true"
+      OMRS_CONFIG_CONNECTION_SERVER: host.docker.internal
+      OMRS_CONFIG_CONNECTION_DATABASE: openmrs
+      OMRS_CONFIG_CONNECTION_USERNAME: root
+      OMRS_CONFIG_CONNECTION_PASSWORD: password
+      OMRS_CONFIG_DATABASE: mysql
+    volumes:
+      - openmrs-data:/openmrs/data
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs"]
+      timeout: 5s
+
+  frontend:
+    image: openmrs/openmrs-reference-application-3-frontend:${TAG:-qa}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      SPA_PATH: /openmrs/spa
+      API_URL: /openmrs
+      SPA_CONFIG_URLS:
+      SPA_DEFAULT_LOCALE:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      timeout: 5s
+
+  gateway:
+    image: openmrs/openmrs-reference-application-3-gateway:${TAG:-qa}
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  openmrs-data:
