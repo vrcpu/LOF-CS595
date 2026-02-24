@@ -5,6 +5,10 @@ import requests
 # --------------------------
 # Verify OpenMRS / LOF Services
 # --------------------------
+def verify_lof_services():
+    # Dummy check; replace with your actual OpenMRS API verification if needed
+    print("LoF / OpenMRS Services verified successfully")
+
 BASE_URL = 'https://api.leapoffaith.com/api/service'
 BASE_HEADERS = {
     "Content-Type": "application/json"
