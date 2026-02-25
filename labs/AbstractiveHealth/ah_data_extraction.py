@@ -1,22 +1,24 @@
 # Script.py
 import os
+import sys
 from dotenv import load_dotenv
 import time
 import zipfile
 import io
 import requests
 import json
-from services import get_ah_token, search_patient, retrieve_patient_docs, verify_lof_services
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from labs.AbstractiveHealth.services import ah_services
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), './../..')))
+from lof.services import AbstractiveHealthTokenService
 
 load_dotenv()  # Load AH credentials from .env
+AH_services = ah_services.AH_Services
 
 def main():
-    # Step 0: Verify LOF / OpenMRS services
-    verify_lof_services()
-
     # Step 1: Get AH token
     try:
-        token = get_ah_token()
+        token = AbstractiveHealthTokenService().get_bearer_token()
         print("✅ Token obtained:", token[:10] + "...")  # partial token
     except Exception as e:
         print("❌ Failed to get token:", e)
@@ -39,7 +41,7 @@ def main():
 
     # Step 3: Search patient
     try:
-        search_resp = search_patient(token, patient, test=True)
+        search_resp = AH_services.search_patient(token, patient, test=True)
         print("✅ Patient search response:", search_resp)
     except Exception as e:
         print("❌ Failed to search patient:", e)
@@ -59,12 +61,12 @@ def main():
         timeout = 300  # max wait 5 minutes
         interval = 20  # check every 20 seconds
         start_time = time.time()
-        docs_resp = retrieve_patient_docs(token, conversation_id, patient_id, test=True)
+        docs_resp = AH_services.retrieve_patient_docs(token, conversation_id, patient_id, test=True)
 
         while docs_resp.get("processing", True):
             print("⏳ Documents still processing... waiting 20 seconds")
             time.sleep(interval)
-            docs_resp = retrieve_patient_docs(token, conversation_id, patient_id, test=True)
+            docs_resp = AH_services.retrieve_patient_docs(token, conversation_id, patient_id, test=True)
 
             if time.time() - start_time > timeout:
                 print("❌ Timeout waiting for documents")

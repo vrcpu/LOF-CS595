@@ -47,6 +47,15 @@ class HealthGorillaTokenService:
             raise Exception(f"Failed to get Health Gorilla token: {response.status_code}")
 
 
+class AbstractiveHealthTokenService:
+    def get_bearer_token(self):
+        response = requests.post(BASE_URL + '/ah/token/', json={}, headers=lof_service_request_headers())
+        if response.status_code == 200:
+            return response.json()['access_token']
+        else:
+            print(f"Failed to get Abstractive Health token: {response.status_code} : {response.json()['message']}")
+            raise Exception(f"Failed to get Abstractive Health token: {response.status_code}")
+
 class IMONLPService:
 
     def tokenize_text(self, text):

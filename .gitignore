@@ -1,0 +1,46 @@
+# =========================
+# Python Virtual Environments (ANYWHERE)
+# =========================
+venv_3.12/
+.venv_3.12/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ignore nested ones in subfolders
+**/venv_3.12/
+**/.venv_3.12/
+**/env/
+**/ENV/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS junk
+.DS_Store
+
+# dotenv files (VERY IMPORTANT — contains credentials)
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Python build artifacts
+dist/
+build/
+*.egg-info/
