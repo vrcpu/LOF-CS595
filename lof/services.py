@@ -121,7 +121,7 @@ class FDBService:
         
 if __name__ == '__main__':
     token = lof_service_request_headers()
-    print('LoF Services verified successfully')
+    print('✅ LoF Services verified successfully')
 
     # nlp_service = IMONLPService()
     # with open('sample_note.txt','r') as note:

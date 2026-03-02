@@ -76,6 +76,7 @@ def create_openmrs_patient(patient_json):
             - print error text from response
     """
 
+
 # ---------- Create Encounter ----------
 def create_encounter(patient_uuid):
     payload = {
@@ -200,6 +201,7 @@ def get_frequency_uuid_by_name(name):
 # ---------- Add Conditions ----------
 def add_conditions(patient_uuid, conditions):
     seen_concepts = set()
+    had_error = False
 
     for cond in conditions:
         concept_uuid = get_concept_uuid(cond)
@@ -223,8 +225,15 @@ def add_conditions(patient_uuid, conditions):
         if r.status_code in [200, 201]:
             print(f"✅ Condition '{cond}' added")
         else:
+            had_error = True
             print(f"❌ Failed to add condition '{cond}': {r.text}")
-            
+
+    if not had_error:
+        print("✅ Conditions added successfully.")
+    else:
+        print("⚠️ There have been issues adding conditions.")
+    
+    return not had_error
 
 # ---------- Add Medications ----------
 def add_medications(patient_uuid, encounter_uuid, medications):
@@ -232,14 +241,11 @@ def add_medications(patient_uuid, encounter_uuid, medications):
     dose_units_uuid = get_concept_uuid("Tablet")
     route_uuid = get_concept_uuid("Oral")
     frequency_uuid = get_concept_uuid("Once Daily")
+    had_error = False
 
     for med in medications:
         parts = med.split(":")
         drug_name = parts[0].strip()
-        start_date_raw = parts[1].strip() if len(parts) > 1 else "01/01/1981"
-        start_date = datetime.strptime(start_date_raw, "%m/%d/%Y").strftime("%Y-%m-%dT%H:%M:%S.000+0000")
-
-        print("Drug Name:", drug_name)
 
         # 1️⃣ Get or create concept
         concept_uuid = get_concept_uuid(drug_name)
@@ -250,10 +256,6 @@ def add_medications(patient_uuid, encounter_uuid, medications):
         drug_uuid = get_drug_uuid_by_name(drug_name)
         if not drug_uuid:
             drug_uuid = create_drug(drug_name, concept_uuid)
-
-        print(f"Concept UUID: {concept_uuid}")
-        print(f"Drug UUID: {drug_uuid}")
-        print("Start Date:", start_date)
 
         payload = {
             "type": "drugorder",
@@ -278,12 +280,18 @@ def add_medications(patient_uuid, encounter_uuid, medications):
         if r.status_code in [200, 201]:
             print(f"✅ Medication '{drug_name}' added")
         else:
+            had_error = True
             print(f"❌ Failed to add medication '{drug_name}': {r.text[:700]}")
-
+    
+    if not had_error:
+        print("✅ Medications added successfully.")
+    else:
+        print("⚠️ There have been issues adding medications.")
+    
+    return not had_error
 
 # ---------- Create Observation ----------
 def create_obs(patient_uuid, encounter_uuid, concept_uuid, obs_datetime, value_numeric=None, value_text=None):
-    print("Date Time for Obs:", obs_datetime)
     payload = {
         "person": patient_uuid,
         "encounter": encounter_uuid,
@@ -401,18 +409,32 @@ def add_vitals(patient_uuid, encounter_uuid, vitals_lines):
     sbp_uuid  = get_concept_uuid_by_name_and_datatype("Systolic blood pressure", "Numeric")
     dbp_uuid  = get_concept_uuid_by_name_and_datatype("Diastolic blood pressure", "Numeric")
 
+    had_error = False
+
     if not sbp_uuid:
         sbp_uuid = get_concept_uuid_by_name_and_datatype("Systolic BP", "Numeric")
     if not dbp_uuid:
         dbp_uuid = get_concept_uuid_by_name_and_datatype("Diastolic BP", "Numeric")
         
     # Basic safety warnings
-    if not temp_uuid: print("⚠️ Temperature concept (Numeric) not found")
-    if not wt_uuid:   print("⚠️ Weight concept (Numeric) not found")
-    if not ht_uuid:   print("⚠️ Height concept (Numeric) not found")
-    if not bmi_uuid:  print("⚠️ Body mass index concept (Numeric) not found")
-    if not sbp_uuid:  print("⚠️ Systolic blood pressure (Numeric) concept not found; skipping SBP")
-    if not dbp_uuid:  print("⚠️ Diastolic blood pressure (Numeric) concept not found; skipping DBP")
+    if not temp_uuid: 
+        had_error = True
+        print("⚠️ Temperature concept (Numeric) not found")
+    if not wt_uuid:   
+        had_error = True
+        print("⚠️ Weight concept (Numeric) not found")
+    if not ht_uuid:   
+        had_error = True
+        print("⚠️ Height concept (Numeric) not found")
+    if not bmi_uuid:  
+        had_error = True
+        print("⚠️ Body mass index concept (Numeric) not found")
+    if not sbp_uuid:  
+        had_error = True
+        print("⚠️ Systolic blood pressure (Numeric) concept not found; skipping SBP")
+    if not dbp_uuid:  
+        had_error = True
+        print("⚠️ Diastolic blood pressure (Numeric) concept not found; skipping DBP")
 
     bp_sys = None
     bp_dia = None
@@ -421,6 +443,7 @@ def add_vitals(patient_uuid, encounter_uuid, vitals_lines):
     for line in vitals_lines:
         parsed = parse_vital_line(line)
         if not parsed:
+            had_error = True
             print("⚠️ Could not parse vital:", line)
             continue
 
@@ -440,6 +463,7 @@ def add_vitals(patient_uuid, encounter_uuid, vitals_lines):
         # Temperature
         if name == "temperature":
             if not temp_uuid:
+                had_error = True
                 continue
             # Handle degF -> C
             c = f_to_c(value) if unit.lower() in ("degf", "[degf]") else value
@@ -449,6 +473,7 @@ def add_vitals(patient_uuid, encounter_uuid, vitals_lines):
         # Weight
         if name == "weight":
             if not wt_uuid:
+                had_error = True
                 continue
             kg = lb_to_kg(value) if unit.lower() in ("lb_av", "[lb_av]") else value
             create_obs(patient_uuid, encounter_uuid, wt_uuid, dt, value_numeric=round(kg, 2))
@@ -457,6 +482,7 @@ def add_vitals(patient_uuid, encounter_uuid, vitals_lines):
         # Height
         if name == "height":
             if not ht_uuid:
+                had_error
                 continue
             cm = in_to_cm(value) if unit.lower() in ("in_i", "[in_i]") else value
             create_obs(patient_uuid, encounter_uuid, ht_uuid, dt, value_numeric=round(cm, 2))
@@ -465,6 +491,7 @@ def add_vitals(patient_uuid, encounter_uuid, vitals_lines):
         # BMI
         if name == "bmi":
             if not bmi_uuid:
+                had_error = True
                 continue
             create_obs(patient_uuid, encounter_uuid, bmi_uuid, dt, value_numeric=round(value, 2))
             continue
@@ -482,10 +509,19 @@ def add_vitals(patient_uuid, encounter_uuid, vitals_lines):
             create_obs(patient_uuid, encounter_uuid, dbp_uuid, obs_dt, value_numeric=round(bp_dia, 0))
 
     elif bp_sys is not None or bp_dia is not None:
+        had_error = True
         print("⚠️ Only one BP component found; skipping BP obs.")
 
-# ---------- Main ----------
+    if not had_error:
+        print ("✅ Vitals added successfully.")
+    else:        
+        print("⚠️ There have been issues adding vitals.")
+    
+    return not had_error
+
 def main():
+    all_ok = True
+
     for file_name in os.listdir(JSON_DIR):
         if not file_name.endswith(".json"):
             continue
@@ -495,15 +531,31 @@ def main():
 
         patient_uuid = create_openmrs_patient(patient_data)
 
-        if patient_uuid:
-            encounter_uuid = create_encounter(patient_uuid)
-            add_conditions(patient_uuid, patient_data.get("conditions", []))
+        if not patient_uuid:
+            all_ok = False
+            continue
 
-            if encounter_uuid:
-                add_medications(patient_uuid, encounter_uuid, patient_data.get("medications", []))
-                add_vitals(patient_uuid, encounter_uuid, patient_data.get("vitals", []))
+        encounter_uuid = create_encounter(patient_uuid)
+        if not encounter_uuid:
+            all_ok = False
+            continue
 
-    print("\n✅ All patients imported successfully!")
+        ok_conditions = add_conditions(patient_uuid, patient_data.get("conditions", []))
+        if not ok_conditions:
+            all_ok = False
+
+        ok_meds = add_medications(patient_uuid, encounter_uuid, patient_data.get("medications", []))
+        if not ok_meds:
+            all_ok = False
+
+        ok_vitals = add_vitals(patient_uuid, encounter_uuid, patient_data.get("vitals", []))
+        if not ok_vitals:
+            all_ok = False
+
+    if all_ok:
+        print("\n✅ All patients imported successfully!")
+    else:
+        print("\n⚠️ Import incomplete with errors.")
 
 if __name__ == "__main__":
     main()
