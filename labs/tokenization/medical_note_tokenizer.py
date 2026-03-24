@@ -27,13 +27,15 @@ class TokenizationResult:
     assertion: str
 
 def format_codes_with_assertion(result_type, result_data):
-    if result_type not in result_data:
+    result = result_data.get(result_type)
+
+    if not result:
         return ""
-    
-    codes = ", ".join(f"{k}: {v}" for k, v in result_data[result_type].codes.items())
-    assertion = result_data[result_type].assertion
-    
-    return f"Assertion: {assertion}, {codes}" if codes else ""
+
+    codes = ", ".join(f"{k}: {v}" for k, v in result.codes.items())
+    assertion = result.assertion
+
+    return f"Assertion: {assertion}, {codes}" if codes else f"Assertion: {assertion}"
 
 def process_entity_codes(entity: Dict, source: str) -> TokenizationResult:
     """
@@ -57,6 +59,7 @@ def process_entity_codes(entity: Dict, source: str) -> TokenizationResult:
     codes = {}
 
     # Your implementation here
+
 
     return TokenizationResult(
         text=entity['text'],
@@ -179,7 +182,7 @@ def main():
         # Model selection
         model_choice = st.selectbox(
             "Select OpenRouter Model",
-            ["google/gemini-2.0-flash-lite-preview-02-05:free"]
+            ["google/gemini-2.0-flash-lite-001"]
         )
 
         st.write("Upload a text file to tokenize its content.")
