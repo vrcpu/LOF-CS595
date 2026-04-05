@@ -1,0 +1,561 @@
+import json
+import random
+import os
+import requests
+import re
+from requests.auth import HTTPBasicAuth
+from datetime import datetime
+
+# ---------------- CONFIG ----------------
+OPENMRS_BASE_URL = "http://localhost:8080/openmrs/ws/rest/v1"
+OPENMRS_USERNAME = "admin"
+OPENMRS_PASSWORD = "Admin123"
+JSON_DIR = "Patient_data"
+
+ENCOUNTER_TYPE_UUID = "67a71486-1a54-468f-ac3e-7091a9a79584"  
+LOCATION_UUID = "8d6c993e-c2cc-11de-8d13-0010c6dffd0f"
+IDENTIFIER_TYPE_UUID = "05a29f94-c0ed-11e2-94be-8c13b969e334"
+DRUG_ORDER_TYPE_UUID = "131168f4-15f5-102d-96e4-000c29c2a5d7"  
+# ----------------------------------------
+
+session = requests.Session()
+session.auth = HTTPBasicAuth(OPENMRS_USERNAME, OPENMRS_PASSWORD)
+session.headers.update({"Content-Type": "application/json"})
+
+# ---------- Generate OpenMRS Patient Identifier ----------
+def generate_openmrs_id(base_number: int):
+    valid_chars = '0123456789ACDEFGHJKLMNPRTUVWXY'
+    base_str = str(base_number)
+    total, factor = 0, 2
+    for char in reversed(base_str):
+        code_point = valid_chars.index(char)
+        addend = factor * code_point
+        factor = 1 if factor == 2 else 2
+        addend = (addend // len(valid_chars)) + (addend % len(valid_chars))
+        total += addend
+    remainder = total % len(valid_chars)
+    check_code_point = (len(valid_chars) - remainder) % len(valid_chars)
+    return f"{base_str}{valid_chars[check_code_point]}"
+
+# ---------- Create Patient ----------
+def create_openmrs_patient(patient_json):
+    """
+    TODO: Implement this function to create a patient in OpenMRS using the REST API.
+    Step 1: Extract Patient Data
+        From the JSON input, retrieve: full name, gender,birthDate
+        Split the full name into: givenName (first name), familyName (last name)
+
+    Step 2: Generate an OpenMRS Identifier
+        Each patient must have a unique medical record number.
+        Use the provided generate_openmrs_id() function to create a valid identifier.
+
+    Step 3: Build the JSON Payload
+        The payload MUST contain:
+        person:
+            names which should contain givenName and familyName
+            gender
+            birthdate
+        identifiers:
+            identifier which would be the generated OpenMRS identifier
+            identifierType would be the provided IDENTIFIER_TYPE_UUID
+            location would be the provided location UUID
+            preferred would be True
+        They represent a real hospital configuration.
+
+    Step 4: Construct the REST Endpoint & Send the Request
+        The endpoint for creating a patient is:
+        POST: /openmrs/ws/rest/v1/patient
+        You are NOT responsible for writing the full path: /openmrs/ws/rest/v1 is already defined in OPENMRS_BASE_URL. Just append /patient to it.
+        Use the requests library to send the POST request with the JSON payload.
+
+    Step 5: Handle the Response
+        If success (200 or 201):
+            - extract patient UUID from response JSON
+            - print success message containing patient name and patient UUID
+        If failure:
+            - print error text from response
+    """
+
+
+# ---------- Create Encounter ----------
+def create_encounter(patient_uuid):
+    payload = {
+        "patient": patient_uuid,
+        "encounterType": ENCOUNTER_TYPE_UUID,
+        "location": LOCATION_UUID,
+        "encounterDatetime": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000+0000")
+    }
+
+    r = session.post(f"{OPENMRS_BASE_URL}/encounter", json=payload)
+    if r.status_code in [200, 201]:
+        return r.json()["uuid"]
+    else:
+        print(f"❌ Failed to create encounter: {r.text}")
+        return None
+
+# ---------- Get Concept UUID ----------
+def get_concept_uuid(name):
+    url = f"{OPENMRS_BASE_URL}/concept?q={name}"
+    r = session.get(url)
+    if r.status_code == 200:
+        results = r.json().get("results", [])
+        if results:
+            return results[0]["uuid"]
+    return None
+
+# ---------- Get Concept UUID by Name and Datatype ----------
+def get_concept_uuid_by_name_and_datatype(q, desired_datatype):
+    """
+    desired_datatype examples: 'Numeric', 'Text', 'Coded'
+    """
+    r = session.get(f"{OPENMRS_BASE_URL}/concept?q={requests.utils.quote(q)}&v=full")
+    if r.status_code != 200:
+        return None
+
+    results = r.json().get("results", [])
+    desired_datatype = desired_datatype.lower()
+
+    for c in results:
+        dt = (c.get("datatype", {}) or {}).get("display", "")
+        if dt.lower() == desired_datatype:
+            return c.get("uuid")
+
+    # If nothing matches datatype, return None
+    return None
+
+# ---------- Create Concept ----------
+def create_concept(name):
+    payload = {
+        "names": [{
+            "name": name,
+            "locale": "en",
+            "conceptNameType": "FULLY_SPECIFIED",
+            "localePreferred": True
+        }],
+        "datatype": "N/A",
+        "conceptClass": "Drug"
+    }
+
+    r = session.post(f"{OPENMRS_BASE_URL}/concept", json=payload)
+    if r.status_code == 201:
+        print(f"🆕 Created concept '{name}'")
+        return r.json()["uuid"]
+    else:
+        print(f"❌ Failed to create concept '{name}': {r.text}")
+        return None
+
+# ---------- Get Drug UUID ----------
+def get_drug_uuid_by_name(name):
+    r = session.get(f"{OPENMRS_BASE_URL}/drug?q={requests.utils.quote(name)}&v=default")
+    if r.status_code == 200:
+        for d in r.json().get("results", []):
+            if d["display"].lower() == name.lower():
+                return d["uuid"]
+    return None
+
+#---------- Create Drug ----------
+def create_drug(name, concept_uuid):
+    payload = {
+        "name": name,
+        "concept": concept_uuid,
+        "combination": False  
+    }
+
+    r = session.post(f"{OPENMRS_BASE_URL}/drug", json=payload)
+    if r.status_code in [200, 201]:
+        print(f"🆕 Created drug '{name}'")
+        return r.json()["uuid"]
+    else:
+        print(f"❌ Failed to create drug '{name}': {r.text}")
+        return None
+    
+
+# ---------- Get Provider UUID ----------
+def get_first_provider_uuid():
+    r = session.get(f"{OPENMRS_BASE_URL}/provider?q=admin&v=default")
+    if r.status_code == 200 and r.json().get("results"):
+        return r.json()["results"][0]["uuid"]
+
+    r = session.get(f"{OPENMRS_BASE_URL}/provider?v=default")
+    if r.status_code == 200 and r.json().get("results"):
+        return r.json()["results"][0]["uuid"]
+
+    return None
+
+#--------- Get Frequency Order UUID ----------
+def get_frequency_uuid_by_name(name):
+    url = f"{OPENMRS_BASE_URL}/orderfrequency?v=default"
+    r = session.get(url)
+
+    if r.status_code != 200:
+        print("❌ Unable to fetch order frequencies:", r.text)
+        return None
+
+    for freq in r.json().get("results", []):
+        if freq.get("display", "").lower() == name.lower():
+            return freq.get("uuid")
+
+    print(f"❌ Frequency '{name}' not found in OpenMRS")
+    return None
+
+# ---------- Add Conditions ----------
+def add_conditions(patient_uuid, conditions):
+    seen_concepts = set()
+    had_error = False
+
+    for cond in conditions:
+        concept_uuid = get_concept_uuid(cond)
+        if not concept_uuid:
+            concept_uuid = create_concept(cond)
+
+        if concept_uuid in seen_concepts:
+            print(f"⚠️ Skipping duplicate condition: {cond}")
+            continue
+
+        seen_concepts.add(concept_uuid)
+
+        payload = {
+            "patient": patient_uuid,
+            "condition": {"coded": concept_uuid},
+            "clinicalStatus": "ACTIVE",
+            "verificationStatus": "CONFIRMED"
+        }
+
+        r = session.post(f"{OPENMRS_BASE_URL}/condition", json=payload)
+        if r.status_code in [200, 201]:
+            print(f"✅ Condition '{cond}' added")
+        else:
+            had_error = True
+            print(f"❌ Failed to add condition '{cond}': {r.text}")
+
+    if not had_error:
+        print("✅ Conditions added successfully.")
+    else:
+        print("⚠️ There have been issues adding conditions.")
+    
+    return not had_error
+
+# ---------- Add Medications ----------
+def add_medications(patient_uuid, encounter_uuid, medications):
+    orderer_uuid = get_first_provider_uuid()
+    dose_units_uuid = get_concept_uuid("Tablet")
+    route_uuid = get_concept_uuid("Oral")
+    frequency_uuid = get_concept_uuid("Once Daily")
+    had_error = False
+
+    for med in medications:
+        parts = med.split(":")
+        drug_name = parts[0].strip()
+
+        # 1️⃣ Get or create concept
+        concept_uuid = get_concept_uuid(drug_name)
+        if not concept_uuid:
+            concept_uuid = create_concept(drug_name)
+
+        # 2️⃣ Get or create drug
+        drug_uuid = get_drug_uuid_by_name(drug_name)
+        if not drug_uuid:
+            drug_uuid = create_drug(drug_name, concept_uuid)
+
+        payload = {
+            "type": "drugorder",
+            "action": "NEW",
+            "careSetting": "OUTPATIENT",
+            "patient": patient_uuid,
+            "encounter": encounter_uuid,
+            "concept": concept_uuid,
+            "drug": drug_uuid,  
+            "orderType": DRUG_ORDER_TYPE_UUID,
+            "orderer": orderer_uuid,
+            "dose": 1,
+            "doseUnits": dose_units_uuid,
+            "route": route_uuid,
+            "frequency": frequency_uuid,
+            "quantity": 30,
+            "numRefills": 0,
+            "quantityUnits": dose_units_uuid,
+        }
+
+        r = session.post(f"{OPENMRS_BASE_URL}/order", json=payload)
+        if r.status_code in [200, 201]:
+            print(f"✅ Medication '{drug_name}' added")
+        else:
+            had_error = True
+            print(f"❌ Failed to add medication '{drug_name}': {r.text[:700]}")
+    
+    if not had_error:
+        print("✅ Medications added successfully.")
+    else:
+        print("⚠️ There have been issues adding medications.")
+    
+    return not had_error
+
+# ---------- Create Observation ----------
+def create_obs(patient_uuid, encounter_uuid, concept_uuid, obs_datetime, value_numeric=None, value_text=None):
+    payload = {
+        "person": patient_uuid,
+        "encounter": encounter_uuid,
+        "concept": concept_uuid,
+        "obsDatetime": obs_datetime
+    }
+    if value_numeric is not None:
+        payload["value"] = value_numeric
+    elif value_text is not None:
+        payload["value"] = value_text
+    else:
+        raise ValueError("Need value_numeric or value_text")
+
+    r = session.post(f"{OPENMRS_BASE_URL}/obs", json=payload)
+    if r.status_code in [200, 201]:
+        return True
+    print("❌ Obs failed:", r.text)
+    return False
+
+
+# ---------------------------- Vitals ------------------------------
+VITAL_CONCEPT_QUERY = {
+    "temperature": ("Temperature", "Numeric"),
+    "weight": ("Weight", "Numeric"),
+    "height": ("Height", "Numeric"),
+    "bmi": ("Body mass index", "Numeric"),
+    "blood_pressure": ("Blood Pressure", "Text"),  
+}
+
+def parse_vital_line(line: str):
+    """
+    Parses lines like:
+      temperature: 98[degF] at 12/12/2023
+      blood pressure systolic: 120mm[Hg] at 12/12/2023
+      bmi: 26.44kg/m2 at 12/12/2023
+
+    Returns dict: {name, value, unit, date}
+    """
+    line = line.strip()
+
+    if " at " not in line:
+        return None
+
+    left, date_str = line.rsplit(" at ", 1)
+    date_str = date_str.strip()
+
+    if ":" not in left:
+        return None
+
+    name, rest = left.split(":", 1)
+    name = name.strip().lower()
+    rest = rest.strip()
+
+    # Extract numeric at the beginning (int or float)
+    m = re.match(r"^([-+]?\d+(?:\.\d+)?)\s*(.*)$", rest)
+    if not m:
+        return None
+
+    value = float(m.group(1))
+    unit = (m.group(2) or "").strip()
+
+    if unit.startswith("[") and unit.endswith("]"):
+        unit = unit[1:-1].strip()
+
+    return {
+        "name": name,
+        "value": value,
+        "unit": unit,
+        "date": date_str
+    }
+
+# ---------- Date Parsing ----------
+def parse_datetime(date_str):
+    """
+    Accepts:
+    12/12/2023
+    12/12/2023 14:22
+    12/12/2023 14:22:51
+    """
+    date_str = date_str.strip()
+
+    formats = [
+        "%m/%d/%Y %H:%M:%S",
+        "%m/%d/%Y %H:%M",
+        "%m/%d/%Y"
+    ]
+
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(date_str, fmt)
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            continue
+
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+# -- Unit conversion --
+def f_to_c(f): 
+    return (f - 32) * 5.0 / 9.0
+
+def lb_to_kg(lb):
+    return lb * 0.45359237
+
+def in_to_cm(inches):
+    return inches * 2.54
+
+def add_vitals(patient_uuid, encounter_uuid, vitals_lines):
+    
+    temp_uuid = get_concept_uuid_by_name_and_datatype("Temperature", "Numeric")
+    wt_uuid   = get_concept_uuid_by_name_and_datatype("Weight", "Numeric")
+    ht_uuid   = get_concept_uuid_by_name_and_datatype("Height", "Numeric")
+    bmi_uuid  = get_concept_uuid_by_name_and_datatype("Body mass index", "Numeric")
+
+
+    sbp_uuid  = get_concept_uuid_by_name_and_datatype("Systolic blood pressure", "Numeric")
+    dbp_uuid  = get_concept_uuid_by_name_and_datatype("Diastolic blood pressure", "Numeric")
+
+    had_error = False
+
+    if not sbp_uuid:
+        sbp_uuid = get_concept_uuid_by_name_and_datatype("Systolic BP", "Numeric")
+    if not dbp_uuid:
+        dbp_uuid = get_concept_uuid_by_name_and_datatype("Diastolic BP", "Numeric")
+        
+    # Basic safety warnings
+    if not temp_uuid: 
+        had_error = True
+        print("⚠️ Temperature concept (Numeric) not found")
+    if not wt_uuid:   
+        had_error = True
+        print("⚠️ Weight concept (Numeric) not found")
+    if not ht_uuid:   
+        had_error = True
+        print("⚠️ Height concept (Numeric) not found")
+    if not bmi_uuid:  
+        had_error = True
+        print("⚠️ Body mass index concept (Numeric) not found")
+    if not sbp_uuid:  
+        had_error = True
+        print("⚠️ Systolic blood pressure (Numeric) concept not found; skipping SBP")
+    if not dbp_uuid:  
+        had_error = True
+        print("⚠️ Diastolic blood pressure (Numeric) concept not found; skipping DBP")
+
+    bp_sys = None
+    bp_dia = None
+    bp_date = None
+
+    for line in vitals_lines:
+        parsed = parse_vital_line(line)
+        if not parsed:
+            had_error = True
+            print("⚠️ Could not parse vital:", line)
+            continue
+
+        name = parsed["name"]          
+        value = parsed["value"]
+        unit = (parsed["unit"] or "").strip()
+        dt = parse_datetime(parsed["date"])
+
+        # BP capture
+        if name == "blood pressure systolic":
+            bp_sys, bp_date = int(value), dt
+            continue
+        if name == "blood pressure diastolic":
+            bp_dia, bp_date = int(value), dt
+            continue
+
+        # Temperature
+        if name == "temperature":
+            if not temp_uuid:
+                had_error = True
+                continue
+            # Handle degF -> C
+            c = f_to_c(value) if unit.lower() in ("degf", "[degf]") else value
+            create_obs(patient_uuid, encounter_uuid, temp_uuid, dt, value_numeric=round(c, 2))
+            continue
+
+        # Weight
+        if name == "weight":
+            if not wt_uuid:
+                had_error = True
+                continue
+            kg = lb_to_kg(value) if unit.lower() in ("lb_av", "[lb_av]") else value
+            create_obs(patient_uuid, encounter_uuid, wt_uuid, dt, value_numeric=round(kg, 2))
+            continue
+
+        # Height
+        if name == "height":
+            if not ht_uuid:
+                had_error
+                continue
+            cm = in_to_cm(value) if unit.lower() in ("in_i", "[in_i]") else value
+            create_obs(patient_uuid, encounter_uuid, ht_uuid, dt, value_numeric=round(cm, 2))
+            continue
+
+        # BMI
+        if name == "bmi":
+            if not bmi_uuid:
+                had_error = True
+                continue
+            create_obs(patient_uuid, encounter_uuid, bmi_uuid, dt, value_numeric=round(value, 2))
+            continue
+
+        print("⚠️ Unhandled vital type:", name)
+
+    # --- Post BP as TWO numeric obs (SBP + DBP) ---
+    if bp_sys is not None and bp_dia is not None:
+        obs_dt = bp_date or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        if sbp_uuid:
+            create_obs(patient_uuid, encounter_uuid, sbp_uuid, obs_dt, value_numeric=round(bp_sys, 0))
+
+        if dbp_uuid:
+            create_obs(patient_uuid, encounter_uuid, dbp_uuid, obs_dt, value_numeric=round(bp_dia, 0))
+
+    elif bp_sys is not None or bp_dia is not None:
+        had_error = True
+        print("⚠️ Only one BP component found; skipping BP obs.")
+
+    if not had_error:
+        print ("✅ Vitals added successfully.")
+    else:        
+        print("⚠️ There have been issues adding vitals.")
+    
+    return not had_error
+
+def main():
+    all_ok = True
+
+    for file_name in os.listdir(JSON_DIR):
+        if not file_name.endswith(".json"):
+            continue
+
+        with open(os.path.join(JSON_DIR, file_name)) as f:
+            patient_data = json.load(f)
+
+        patient_uuid = create_openmrs_patient(patient_data)
+
+        if not patient_uuid:
+            all_ok = False
+            continue
+
+        encounter_uuid = create_encounter(patient_uuid)
+        if not encounter_uuid:
+            all_ok = False
+            continue
+
+        ok_conditions = add_conditions(patient_uuid, patient_data.get("conditions", []))
+        if not ok_conditions:
+            all_ok = False
+
+        ok_meds = add_medications(patient_uuid, encounter_uuid, patient_data.get("medications", []))
+        if not ok_meds:
+            all_ok = False
+
+        ok_vitals = add_vitals(patient_uuid, encounter_uuid, patient_data.get("vitals", []))
+        if not ok_vitals:
+            all_ok = False
+
+    if all_ok:
+        print("\n✅ All patients imported successfully!")
+    else:
+        print("\n⚠️ Import incomplete with errors.")
+
+if __name__ == "__main__":
+    main()
